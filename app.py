@@ -13,103 +13,79 @@ CORS(app)
 genai.configure(api_key="AIzaSyBtktLHb_GFBOFGii2ccBWSh-Y4-SSf42w")  
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-def score_to_label(score):
-    if score is None:
-        return "N/A"
-    if score >= 70:
-        return "Real"
-    elif score >= 40:
-        return "Uncertain"
-    else:
-        return "Fake"
-
-
-# --- Image Analysis ---
-def analyze_image_url(image_url):
+def analyze_text(text):
     try:
-        resp = requests.get(image_url, timeout=5)
-        resp.raise_for_status()
-        img = Image.open(BytesIO(resp.content))
+        prompt = f"""
+        You are a fact-checking AI. Analyze the following text/article for credibility:
 
-        explanation_parts = []
+        "{text}"
 
-        # 1. Format / metadata check
-        if img.format not in ["JPEG", "PNG", "WEBP"]:
-            explanation_parts.append(f"Unusual format {img.format}, possible editing.")
+        Tasks:
+        1. Assign a credibility score (0–100).
+        2. Classify as one of: Real, Fake, Misleading, Uncertain, or Humor/Meme.
+        3. Explain WHY in a structured way:
+           - Evidence (or lack of it)
+           - Sources (are any cited? are they credible?)
+           - Tone (neutral, sensational, conspiratorial, etc.)
+           - Factual Reliability (consistent with known facts or not)
+           - Extraordinary Claims (unsupported or backed up)
+        4. Keep explanation concise but detailed enough to justify the score.
+        """
 
-        # 2. EXIF metadata check
-        try:
-            exif = img._getexif()
-            if not exif:
-                explanation_parts.append("No EXIF metadata (common in AI-generated images).")
-        except:
-            explanation_parts.append("EXIF could not be read.")
+        response = model.generate_content(prompt)
+        analysis = response.text.strip()
 
-        # 3. Size check
-        if img.size[0] < 50 or img.size[1] < 50:
-            return 10, "Likely Fake/Manipulated", "Image is too small to analyze reliably."
+        
+        credibility_score = 60
+        label = "Uncertain"
 
-        # 4. Pixel smoothness (AI detection heuristic)
-        arr = np.array(img.convert("L"))  # grayscale
-        edges = np.std(arr)  # standard deviation = texture measure
-        if edges < 15:
-            explanation_parts.append("Very low texture variation (plasticky look, AI sign).")
+       
+        if "real" in analysis.lower():
+            credibility_score = 80
+            label = "Real"
+        elif "fake" in analysis.lower():
+            credibility_score = 20
+            label = "Fake"
+        elif "misleading" in analysis.lower():
+            credibility_score = 40
+            label = "Misleading"
+        elif "humor" in analysis.lower() or "meme" in analysis.lower():
+            credibility_score = 90
+            label = "Humor/Meme"
 
-        # Final decision
-        if explanation_parts:
-            return 40, "Suspicious / Possibly AI", "; ".join(explanation_parts)
-        else:
-            return 90, "Likely Real", "No obvious AI artifacts, distortions, or manipulations detected."
+        return {
+            "credibility_score": credibility_score,
+            "text_label": label,
+            "text_explanation": analysis
+        }
 
     except Exception as e:
-        return None, "Error", f"Image analysis failed: {str(e)}"
+        return {
+            "credibility_score": None,
+            "text_label": "Error",
+            "text_explanation": f"Text analysis failed: {str(e)}"
+        }
 
 
-# --- API Route ---
+
 @app.route("/analyze", methods=["POST"])
 def analyze_post():
     try:
         data = request.json
         text = data.get("text", "")
-        image_url = data.get("image", None)
 
         result = {}
 
-        # --- TEXT ANALYSIS ---
+       
         if text:
-            lowered = text.lower()
-            credibility_score = 60
-
-            if any(word in lowered for word in ["govt", "official", "breaking", "shocking"]):
-                credibility_score = 40
-                result["text_label"] = "Potentially Misleading"
-                explanation = f"Text contains sensational keywords: '{text[:80]}...'"
-            elif any(word in lowered for word in ["meme", "funny", "lol", "😂", "🤣"]):
-                credibility_score = 90
-                result["text_label"] = "Humorous Content"
-                explanation = "Text looks like humor/meme, not factual claim."
-            else:
-                result["text_label"] = "Neutral"
-                explanation = "No misinformation cues found in text."
-
-            result["credibility_score"] = credibility_score
-            result["text_explanation"] = explanation
-
+            text_result = analyze_text(text)
+            result.update(text_result)
         else:
-            result["credibility_score"] = 40
-            result["text_label"] = "Fake"
-            result["text_explanation"] = "No text found."
-
-        # --- IMAGE ANALYSIS ---
-        if image_url:
-            score, label, explanation = analyze_image_url(image_url)
-            result["image_score"] = score
-            result["image_label"] = label
-            result["image_explanation"] = explanation
-        else:
-            result["image_score"] = None
-            result["image_label"] = "No Image"
-            result["image_explanation"] = "No image provided."
+            result.update({
+                "credibility_score": None,
+                "text_label": "No Text",
+                "text_explanation": "No text was provided for analysis."
+            })
 
         return jsonify(result)
 
@@ -121,3 +97,4 @@ def analyze_post():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)
+
