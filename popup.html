@@ -1,52 +1,90 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Fake Post Detector</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        width: 300px;
-        padding: 10px;
-      }
-      h3 {
-        margin-top: 10px;
-        font-size: 16px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 3px;
-      }
-      p {
-        font-size: 14px;
-        margin: 3px 0;
-      }
-      button {
-        margin-top: 10px;
-        width: 100%;
-        padding: 8px;
-        background: #007bff;
-        border: none;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      button:hover {
-        background: #0056b3;
-      }
-    </style>
-  </head>
-  <body>
-    <h3>Fake Post Detector</h3>
-    <button id="analyzeBtn">Analyze Instagram Post</button>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fake Post Detector</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      width: 340px;
+      padding: 15px;
+      background: #f4f7fb;
+      margin: 0;
+    }
+    h2 {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #222;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      font-size: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #0056b3, #003d80);
+    }
+    .result-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      margin-top: 15px;
+      animation: fadeIn 0.4s ease;
+    }
+    .result-card h3 {
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 16px;
+    }
+    .score {
+      font-weight: bold;
+      color: #007bff;
+      font-size: 15px;
+    }
+    .label {
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .label.fake { background: #f8d7da; color: #721c24; }
+    .label.misleading { background: #fff3cd; color: #856404; }
+    .label.real { background: #d4edda; color: #155724; }
+    .explanation {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: #444;
+    }
+    .explanation li {
+      margin-bottom: 6px;
+      line-height: 1.4em;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h2>🕵️ Fake Post Detector</h2>
+  <button id="analyzeBtn">🔎 Analyze Current Page</button>
+  <div id="results"></div>
 
-    <h3>Text Analysis</h3>
-    <p id="score">Credibility Score: N/A</p>
-    <p id="textLabel">Text Label: N/A</p>
-    <p id="textWhy">Text Why: N/A</p>
-
-    <h3>Image Analysis</h3>
-    <p id="imageLabel">Image Label: N/A</p>
-    <p id="imageWhy">Image Why: N/A</p>
-
-    <script src="popup.js"></script>
-  </body>
+  <script src="popup.js"></script>
+</body>
 </html>
-
