@@ -1,21 +1,51 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Fake News Detector</title>
+    <title>Fake Post Detector</title>
     <style>
-      body { font-family: Arial, sans-serif; padding: 10px; width: 300px; }
-      #score { font-size: 20px; margin: 10px 0; }
-      #label { font-weight: bold; }
+      body {
+        font-family: Arial, sans-serif;
+        width: 300px;
+        padding: 10px;
+      }
+      h3 {
+        margin-top: 10px;
+        font-size: 16px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 3px;
+      }
+      p {
+        font-size: 14px;
+        margin: 3px 0;
+      }
+      button {
+        margin-top: 10px;
+        width: 100%;
+        padding: 8px;
+        background: #007bff;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
     </style>
   </head>
   <body>
-    <h2>Fake News Detector</h2>
-    <button id="analyzeBtn">Analyze Page</button>
-    <div id="result">
-      <p id="score"></p>
-      <p id="label"></p>
-      <p id="explanation"></p>
-    </div>
+    <h3>Fake Post Detector</h3>
+    <button id="analyzeBtn">Analyze Instagram Post</button>
+
+    <h3>Text Analysis</h3>
+    <p id="score">Credibility Score: N/A</p>
+    <p id="textLabel">Text Label: N/A</p>
+    <p id="textWhy">Text Why: N/A</p>
+
+    <h3>Image Analysis</h3>
+    <p id="imageLabel">Image Label: N/A</p>
+    <p id="imageWhy">Image Why: N/A</p>
+
     <script src="popup.js"></script>
   </body>
 </html>
