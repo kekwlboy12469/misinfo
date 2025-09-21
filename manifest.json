@@ -1,13 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "Fake News Detector",
+  "name": "Fake Post Detector",
   "version": "1.0",
-  "description": "Detects misinformation using AI",
-  "permissions": ["activeTab", "scripting"],
+  "description": "Analyze Instagram posts for fake text and AI-generated images using Gemini + Flask backend.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8080/*"
+  ],
   "action": {
     "default_popup": "popup.html"
   }
 }
-
-
 
